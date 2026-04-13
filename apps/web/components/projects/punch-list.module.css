@@ -358,6 +358,13 @@
   color: var(--muted);
 }
 
+.itemCardDates {
+  margin-top: 0.45rem;
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.4;
+}
+
 .badge {
   display: inline-block;
   font-size: 0.7rem;
@@ -445,11 +452,16 @@
   background: color-mix(in srgb, var(--accent) 6%, transparent);
 }
 
-.projectTable td:nth-child(3),
-.projectTable td:nth-child(4),
-.projectTable th:nth-child(3),
-.projectTable th:nth-child(4) {
+.projectTable td:nth-child(5),
+.projectTable td:nth-child(6),
+.projectTable th:nth-child(5),
+.projectTable th:nth-child(6) {
   text-align: right;
+  white-space: nowrap;
+}
+
+.tableDateCell {
+  font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
 

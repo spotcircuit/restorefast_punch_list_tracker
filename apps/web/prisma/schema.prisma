@@ -15,6 +15,7 @@ model Project {
   address   String
   status    String      @default("active")
   createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
   items     PunchItem[]
 }
 
@@ -29,6 +30,7 @@ model PunchItem {
   assignedTo  String?
   photo       String?
   createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   @@index([projectId])
 }

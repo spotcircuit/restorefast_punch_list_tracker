@@ -11,6 +11,7 @@ import {
 } from "@/lib/domain/punch-item-status";
 import { PUNCH_ITEM_PRIORITIES } from "@/lib/domain/priority";
 import { apiJson, formatApiError } from "@/lib/api-client";
+import { formatActivityTimestamp } from "@/lib/format-activity-date";
 import type { PunchItemSerialized } from "@/lib/serializers";
 
 import { PriorityIndicator } from "./priority-indicator";
@@ -219,12 +220,20 @@ export function PunchItemCard({ item: initial, className, onItemUpdated }: Props
           <button type="submit" className={s.btnPrimary} disabled={pending}>
             {pending ? "Saving…" : "Save changes"}
           </button>
+          <p className={`${s.muted} ${s.itemCardDates}`}>
+            Created {formatActivityTimestamp(item.createdAt)} · Last activity{" "}
+            {formatActivityTimestamp(item.updatedAt)}
+          </p>
         </form>
       ) : (
         <>
           <p style={{ marginTop: "0.5rem", fontWeight: 600 }}>{item.location}</p>
           <p className={s.muted} style={{ marginTop: "0.35rem" }}>
             {item.description}
+          </p>
+          <p className={`${s.muted} ${s.itemCardDates}`}>
+            Created {formatActivityTimestamp(item.createdAt)} · Last activity{" "}
+            {formatActivityTimestamp(item.updatedAt)}
           </p>
           {item.photo ? (
             <p className={s.muted} style={{ marginTop: "0.5rem" }}>

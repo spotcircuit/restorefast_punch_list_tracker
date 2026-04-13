@@ -7,6 +7,8 @@ import { Modal } from "@/components/ui/modal";
 import type { ProjectDashboardStats } from "@/lib/dashboard/project-dashboard";
 import type { ProjectDetailSerialized, PunchItemSerialized } from "@/lib/serializers";
 
+import { formatActivityTimestamp } from "@/lib/format-activity-date";
+
 import { CreatePunchItemForm } from "./create-punch-item-form";
 import { ProjectDashboardPanel } from "./project-dashboard-panel";
 import { PunchItemCard } from "./punch-item-card";
@@ -98,6 +100,10 @@ export function ProjectDetailView({ project, dashboard }: Props) {
           <p className={s.itemMeta}>
             Status: {project.status} · {items.length} item
             {items.length === 1 ? "" : "s"}
+          </p>
+          <p className={s.itemMeta}>
+            Created {formatActivityTimestamp(project.createdAt)} · Last activity{" "}
+            {formatActivityTimestamp(project.lastActivityAt)}
           </p>
         </div>
         <button

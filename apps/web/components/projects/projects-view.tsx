@@ -7,6 +7,8 @@ import { Modal } from "@/components/ui/modal";
 import type { ProjectListSummary } from "@/lib/dashboard/project-dashboard";
 import type { ProjectListSerialized } from "@/lib/serializers";
 
+import { formatActivityTimestamp } from "@/lib/format-activity-date";
+
 import { CreateProjectForm } from "./create-project-form";
 import s from "./punch-list.module.css";
 
@@ -62,6 +64,8 @@ export function ProjectsView({ projects, summaries }: Props) {
                 <tr>
                   <th scope="col">Project</th>
                   <th scope="col">Jobsite address</th>
+                  <th scope="col">Created</th>
+                  <th scope="col">Last activity</th>
                   <th scope="col">Items</th>
                   <th scope="col">Completion</th>
                   <th scope="col">Status</th>
@@ -87,6 +91,12 @@ export function ProjectsView({ projects, summaries }: Props) {
                         </Link>
                       </td>
                       <td>{p.address}</td>
+                      <td className={s.tableDateCell}>
+                        {formatActivityTimestamp(p.createdAt)}
+                      </td>
+                      <td className={s.tableDateCell}>
+                        {formatActivityTimestamp(p.lastActivityAt)}
+                      </td>
                       <td>{itemLabel}</td>
                       <td>
                         {completionLabel === "—" ? (
