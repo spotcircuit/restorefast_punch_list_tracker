@@ -1,0 +1,11 @@
+.cursor/
+node_modules/
+npm-debug.log*
+.DS_Store
+*.tsbuildinfo
+.env
+.env*.local
+
+# Next.js (apps/web)
+apps/web/.next/
+apps/web/out/

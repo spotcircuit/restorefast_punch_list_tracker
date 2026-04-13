@@ -1,0 +1,9 @@
+# {name}/expertise.yaml
+meta:
+  name: {name}
+  last_updated: {date}
+
+architecture: {}
+known_issues: []
+implementation_patterns: {}
+unvalidated_observations: []
