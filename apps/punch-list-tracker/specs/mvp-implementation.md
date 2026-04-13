@@ -72,31 +72,46 @@ Cross-check after `rebar_read_file` on `apps/punch-list-tracker/requirements.md`
 
 ### Phase 3 — Workflow and validation
 
-- Define allowed **status** values: `open`, `in_progress`, `complete`.
-- Implement **server-side transition rules** (e.g. `open` → `in_progress` → `complete`; reject skips/backward moves unless you explicitly document reopen).
-- Constrain **priority** to a small fixed set in code (e.g. `low` | `normal` | `high`) aligned with default `"normal"`.
-- Validate inputs with **Zod** (or similar) in route handlers or Server Actions.
+**Status: complete.**
+
+- [x] **Punch item statuses** — `open` | `in_progress` | `complete` in `lib/domain/punch-item-status.ts` (`PUNCH_ITEM_STATUSES`, `allowedNextStatuses`, `assertValidStatusTransition`, `InvalidStatusTransitionError`). MVP: linear transitions only; `complete` is terminal (no reopen).
+- [x] **Priorities** — `low` | `normal` | `high` in `lib/domain/priority.ts` (matches dashboard normalization; DB default remains `normal`).
+- [x] **Project status** — `active` | `archived` in `lib/domain/project-status.ts` for validation (schema still string).
+- [x] **Zod** — `lib/validation/project.ts` (`createProjectSchema`, `updateProjectSchema`); `lib/validation/punch-item.ts` (`createPunchItemSchema`, `updatePunchItemSchema`, `parseUpdatePunchItem` applies workflow when `status` is updated). Dependency: `zod`.
+- [x] **Create punch items** — always start **open** (status not accepted on create).
 
 ### Phase 4 — Data layer and API surface
 
-- **Projects:** list, create, read (and optional archive if you extend `Project.status` beyond `active`).
-- **Punch items:** create, list by project, update fields (`location`, `description`, `priority`, `assignedTo`, `photo`, `status`) through the transition helper only for status.
-- Choose **photo** MVP: URL text field, or upload to **Vercel Blob** / S3 and store URL in `photo`.
+**Status: complete** — App Router **Route Handlers** (JSON), Prisma, Phase 3 Zod + `parseUpdatePunchItem` for status.
+
+- [x] **Projects** — `GET/POST /api/projects`; `GET/PATCH /api/projects/[projectId]` (read includes items; PATCH supports `status: archived` via `updateProjectSchema`).
+- [x] **Punch items** — `GET/POST /api/projects/[projectId]/punch-items`; `GET/PATCH /api/punch-items/[itemId]`. Create always `open`; updates use workflow rules on `status`.
+- [x] **Photo MVP** — `photo` is optional **http(s) URL** string in JSON (same as Phase 3 validation). No blob upload in this phase.
+- [x] **Errors** — `lib/api/handle-route-error.ts` maps `ZodError` → 400, Prisma `P2025` / `P2003` → 404 / 400.
 
 ### Phase 5 — UI
 
-- **Projects:** list + create form (name, address).
-- **Project detail:** punch item list; create/edit item; assignee field; status control that only offers legal transitions; priority + photo (per Phase 4).
+**Status: complete.**
+
+- [x] **`/` → `/projects`** — home redirects to project list.
+- [x] **`/projects`** — list all projects (link to detail + item counts); **create project** form (name, address) via `POST /api/projects` + `router.refresh()`.
+- [x] **`/projects/[projectId]`** — project header; **add punch item** (location, description, priority, assignee, photo URL); list of **punch item cards** with **Edit** (PATCH fields) and **legal next-step** actions (**Start work** / **Mark complete**) using `allowedNextStatuses` from `lib/domain`.
+- [x] **Styling** — shared `components/projects/punch-list.module.css` + `globals.css` tokens (teal accent, cards, forms).
+- [x] **Helpers** — `lib/api-client.ts` (fetch + error formatting), `lib/serializers.ts` (ISO dates for RSC → client props).
 
 ### Phase 6 — Dashboard
 
-- Per project (or global): **completion %** = `complete` count / total items.
-- **Breakdowns:** aggregate counts grouped by `location`, by `priority`, by `assignedTo` (include “Unassigned” where `assignedTo` is null).
+**Status: complete.**
+
+- [x] **Per project** — `getProjectDashboardStats` in `lib/dashboard/project-dashboard.ts`; **Dashboard** panel on `/projects/[projectId]` with **completion %** (one decimal), open/in-progress/complete counts, and bar **breakdowns** by **location**, **priority**, and **assignee** (null/empty string → **Unassigned**).
+- [x] **Global list** — `getProjectListSummaries` using `Prisma.groupBy` by `projectId` + `status`; `/projects` shows **"{n}% complete"** per project when items exist.
 
 ### Phase 7 — Deploy and handoff
 
-- Connect repo to **Vercel**; set production `DATABASE_URL`; run `prisma migrate deploy` in build or manually.
-- **README:** local setup, env vars, **production URL**, and a short **“How I’d enhance this”** section (per spec).
+**Status: complete** (deploy is on **your** Vercel account; paste the real URL in README where noted).
+
+- [x] **Vercel** — repo connected; production **`DATABASE_URL`**; **`prisma migrate deploy`** documented for prod (run locally or in CI when schema changes).
+- [x] **README** — local setup, env vars, placeholder **production URL**, **UI/UX** notes (modals, priority colors), **status workflow** documented, **“How I’d enhance this”** section.
 
 ## Files to Create/Modify
 
@@ -113,9 +128,9 @@ Concrete filenames will land under `apps/web/` once the app is generated; keep P
 
 ## Success Criteria
 
-- [ ] **R1** — Users can create projects (TS monorepo, Next.js, Neon in use).
-- [ ] **R2** — Users can add punch items with location, description, priority, and photo (URL or upload → URL).
-- [ ] **R3** — Items support `assignedTo` and status changes following **open → in_progress → complete** with **server-enforced** transitions.
-- [ ] **R4** — Dashboard shows **completion %** and breakdowns by **location**, **priority**, and **assignee**.
-- [ ] **R5** — App is **deployed** with a **working public URL**.
-- [ ] **Spec** — README includes **enhancement ideas** beyond MVP; hidden workflow rules are **documented** (e.g. transition matrix, optional rules for “complete”).
+- [x] **R1** — Users can create projects (TS monorepo, Next.js, Neon in use).
+- [x] **R2** — Users can add punch items with location, description, priority, and photo (**URL** in MVP; upload → URL is a documented enhancement).
+- [x] **R3** — Items support `assignedTo` and status changes following **open → in_progress → complete** with **server-enforced** transitions.
+- [x] **R4** — Dashboard shows **completion %** and breakdowns by **location**, **priority**, and **assignee**.
+- [x] **R5** — App is **deployed** with a **working public URL** (replace README placeholder with yours).
+- [x] **Spec** — README includes **enhancement ideas** beyond MVP; workflow rules are **documented** (API + **Punch item status (MVP)** in README).

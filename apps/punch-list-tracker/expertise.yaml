@@ -9,8 +9,9 @@ architecture:
     Track punch lists: open defects, incomplete work, and sign-off items for
     construction handover, commissioning, facility turnover, or tenant build-outs.
   repository_state: >
-    Phase 1–2: npm workspaces, Next.js 16 in apps/web, Prisma 6 + Postgres schema (Project, PunchItem),
-    initial migration and optional seed. Neon DATABASE_URL required locally/Vercel to run migrations.
+    Phases 1–7: Next.js 16, Prisma 6, REST API, UI with modals for add project/item, color-coded priority,
+    dashboard (completion %, breakdowns by location/priority/assignee, list summaries). README documents Vercel
+    env/migrations, status workflow, enhancements; replace placeholder production URL with the live deployment.
   requirements_source: apps/punch-list-tracker/requirements.md
   implementation_plan: apps/punch-list-tracker/specs/mvp-implementation.md
   domain_entities_sketch:
@@ -27,14 +28,16 @@ architecture:
     - permissions_roles_for_gc_subs_and_owner
     - export_pdf_csv_for_job_closeout
 
-api_gotchas: []
+api_gotchas:
+  - "PATCH /api/punch-items/[id] uses parseUpdatePunchItem; illegal status transitions return 400 with Zod-shaped issues."
+  - "POST punch items only under /api/projects/[projectId]/punch-items; photo is URL-only MVP (no multipart upload)."
 
 key_decisions:
   - "Adopt Rebar (CLAUDE.md, expertise.yaml, wiki/, raw/) so operational and domain context survives across sessions and stays in git."
   - "MVP implementation plan produced with rebar_plan → apps/punch-list-tracker/specs/mvp-implementation.md (2026-04-13)."
 
 known_issues:
-  - "No runtime, database, or CI configured; expertise should be updated as soon as stack and repo layout are chosen."
+  - "Production build on Windows can hit Prisma EPERM if `npm run dev` is running; stop dev before `npm run build -w web`."
 
 implementation_patterns:
   punch_item_lifecycle: "Per requirements.md: only open, in_progress, complete — enforce transitions server-side (no extra statuses for MVP)."
